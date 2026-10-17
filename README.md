@@ -7,9 +7,9 @@ Problem: **P3, Catch Fraud & Double-Selling**. The prototype also covers P2 (ver
 
 > **All data in this app is fictional.** No real land records, names, NID or phone numbers are used, and nothing is taken from government websites.
 
-- Live demo: `[Vercel link]`
+- Live demo: `[[Railway]](https://jomijachai-production.up.railway.app/)`
 - Demo video: `[video link]`
-- Team: **Falcon** · `[Name]`, `[Name]` · Mentors: `[Name]`, `[Name]`
+- Team: **Falcon** · `Shahariyer Nazim`, `Nosrat Bin Shatter` · Mentors: `[Name]`, `[Name]`
 
 ---
 
