@@ -1,0 +1,18 @@
+{
+  "name": "JomiJachai · জমিযাচাই",
+  "short_name": "জমিযাচাই",
+  "description": "জমি কেনার আগে যাচাই করুন, দলিল আসল কি না দেখুন। Check land before you buy and verify deeds.",
+  "start_url": "/#citizen",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "lang": "bn",
+  "background_color": "#075e24",
+  "theme_color": "#075e24",
+  "icons": [
+    { "src": "/icons/icon.svg", "sizes": "any", "type": "image/svg+xml" },
+    { "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/icons/icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "/icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
