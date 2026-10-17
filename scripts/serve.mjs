@@ -1,16 +1,24 @@
 import { createServer } from "node:http";
-import { createReadStream, existsSync, statSync } from "node:fs";
+import { createReadStream, existsSync, readdirSync, statSync } from "node:fs";
 import { dirname, extname, join, normalize, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const here = dirname(fileURLToPath(import.meta.url));
-const root = resolve(here, "..", "out");
-const port = Number.parseInt(process.env.PORT || "", 10) || 3000;
+const app = resolve(here, "..");
+const root = join(app, "out");
 const host = process.env.HOST || "0.0.0.0";
+const assigned = Number.parseInt(process.env.PORT || "", 10) || 3000;
+const alternates = [3000, 5000, 8080, 80].filter((value) => value !== assigned);
+const ports = [assigned, ...alternates];
+const hasBuild = existsSync(join(root, "index.html"));
 
-if (!existsSync(join(root, "index.html"))) {
-  console.error(`No static build found at ${root}. Run "npm run build" first.`);
-  process.exit(1);
+if (!hasBuild) {
+  console.error(`No static build found at ${root}`);
+  try {
+    console.error(`Contents of ${app}: ${readdirSync(app).join(", ")}`);
+  } catch (error) {
+    console.error(`Unable to read ${app}: ${error.message}`);
+  }
 }
 
 const types = {
@@ -99,7 +107,12 @@ const send = (req, res, file, status, cache) => {
   stream.pipe(res);
 };
 
-const server = createServer((req, res) => {
+const handle = (req, res) => {
+  if (!hasBuild) {
+    res.writeHead(500, { "Content-Type": "text/plain; charset=utf-8" });
+    res.end(`No static build found at ${root}\n`);
+    return;
+  }
   if (req.method !== "GET" && req.method !== "HEAD") {
     res.writeHead(405, { Allow: "GET, HEAD" });
     res.end("Method Not Allowed");
@@ -118,12 +131,23 @@ const server = createServer((req, res) => {
   }
   res.writeHead(404, { "Content-Type": "text/plain; charset=utf-8" });
   res.end("Not Found");
+};
+
+const servers = ports.map((value) => {
+  const server = createServer(handle);
+  server.on("error", (error) => {
+    console.error(`Cannot listen on ${host}:${value} - ${error.code}`);
+  });
+  server.listen(value, host, () => {
+    console.log(`JomiJachai static server listening on http://${host}:${value}`);
+  });
+  return server;
 });
 
-server.listen(port, host, () => {
-  console.log(`JomiJachai static server listening on http://${host}:${port} serving ${root}`);
-});
+const shutdown = () => {
+  servers.forEach((server) => server.close());
+  setTimeout(() => process.exit(0), 250).unref();
+};
 
-const shutdown = () => server.close(() => process.exit(0));
 process.on("SIGTERM", shutdown);
 process.on("SIGINT", shutdown);
