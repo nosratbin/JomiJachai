@@ -1,8 +1,10 @@
 import { createServer } from "node:http";
 import { createReadStream, existsSync, statSync } from "node:fs";
-import { extname, join, normalize, resolve, sep } from "node:path";
+import { dirname, extname, join, normalize, resolve, sep } from "node:path";
+import { fileURLToPath } from "node:url";
 
-const root = resolve(process.cwd(), "out");
+const here = dirname(fileURLToPath(import.meta.url));
+const root = resolve(here, "..", "out");
 const port = Number.parseInt(process.env.PORT || "", 10) || 3000;
 const host = process.env.HOST || "0.0.0.0";
 
