@@ -39,7 +39,7 @@
     "tailwindcss": "^4.1.0"
   },
   "engines": {
-    "node": ">=18.18"
+    "node": ">=22"
   },
   "browserslist": [
     "chrome >= 80",

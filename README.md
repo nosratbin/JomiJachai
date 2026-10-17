@@ -78,7 +78,7 @@ Without a key there is no in-app Google view (Google's free embed cannot draw th
 
 ## Run it on your computer
 
-You need **Node.js 18.18 or newer** (download from nodejs.org).
+You need **Node.js 22 or newer** (download from nodejs.org).
 
 ```bash
 npm install
