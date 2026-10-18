@@ -9,7 +9,7 @@ Problem: **P3, Catch Fraud & Double-Selling**. The prototype also covers P2 (ver
 
 - Live demo: [Railway](https://jomijachai-production.up.railway.app/)
 - Demo video: `[video link]`
-- Team: **Falcon** · Shahariyer Nazim, Nosrat Bin Shatter · Mentors: `[Name]`, `[Name]`
+- Team: **Falcon** · Shahariyer Nazim, Nosrat Bin Shatter · Mentors: `Iffat Mehrin Disha`, `MD. Tahamid Hassan Sadib`
 
 ---
 
@@ -128,10 +128,10 @@ public/              PWA manifest, service worker, app icons, photos (credited i
 
 **Logo:** a pin on a mouza map (faint field boundaries) marking one checked dag (lime plot with a tick), on ministry green. Files: `public/icons/icon.svg` (master), app icons in `public/icons/`, the link-sharing image `public/og.png`, and a brand board for slides in `assets/brand/brand-board.png`.
 
-**Design:** modelled on the look of the Ministry of Land's Bhumi Seba portals (green date strip, service tiles, green-header tables), with JomiJachai's own name and logo and no government emblems. It is not a government website. Photos: Wikimedia Commons, credited in the site footer (`assets/credits.json`). Map: [Leaflet](https://leafletjs.com) (open-source), satellite imagery © Esri/Maxar/Earthstar Geographics, street map © OpenStreetMap contributors, and the Google Maps embed (no API key), credited on the map itself. The map is real; the dag outlines and their places on it are made up, like all the demo data.
+**Design:** modelled on the look of the Ministry of Land's Bhumi Seba portals (green date strip, service tiles, green-header tables), with JomiJachai's own name and logo and no government emblems. It is not a government website. Photos: Wikimedia Commons, credited in the site footer (`assets/credits.json`). Map: [Leaflet](https://leafletjs.com) (open-source), satellite imagery © Esri/Maxar/Earthstar Geographics, street map © OpenStreetMap contributors, and the Google Maps embed, credited on the map itself. The map is real; the dag outlines and their places on it are made up, like all the demo data.
 
 ---
 
 ## AI tools used
 
-We used **Claude (Anthropic)** as a coding assistant to help write the code, the concept note and other documents. We designed the solution, reviewed the code, and can explain every part of it. (Hackathon rule: AI tools are allowed if listed here and the team can explain the code.)
+We used **Claude (Anthropic)** as a coding assistant to help write the code, draft the concept note and other documents. We designed the solution, reviewed the code, and can explain every part of it. (Hackathon rule: AI tools are allowed if listed here and the team can explain the code.)
