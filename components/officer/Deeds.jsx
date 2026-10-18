@@ -1,7 +1,9 @@
 "use client";
+import { useState } from "react";
 import { ArrowLeftIcon, PrinterIcon, FileSearchIcon, ChevronRightIcon } from "lucide-react";
 import { useT } from "@/lib/i18n";
 import { useRegister } from "@/lib/api";
+import { usePrefs } from "@/lib/store";
 import { OFFICERS, officeOf } from "@/lib/seed";
 import { go, verifyLink } from "@/lib/nav";
 import * as F from "@/lib/fraction";
@@ -10,6 +12,7 @@ import { Card } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Empty, EmptyContent, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "@/components/ui/empty";
 import { PageHeader, QR, Fingerprint, GREEN_HEAD } from "../brand";
+import { AreaScope, inArea } from "./AreaScope";
 
 export function DeedPaper({ deed, state }) {
   const tr = useT();
@@ -67,51 +70,75 @@ export function DeedPaper({ deed, state }) {
 export function DeedList() {
   const tr = useT();
   const state = useRegister();
-  const deeds = [...state.deeds].reverse();
+  const { area } = usePrefs();
+  const [allAreas, setAllAreas] = useState(false);
+  const deeds = [...state.deeds].reverse().filter((d) => allAreas || inArea(state, d.plot, area));
+  const empty = !deeds.length;
   return (
     <div className="flex flex-col gap-6">
       <PageHeader
         title={tr("নিবন্ধিত দলিল", "Registered deeds")}
         description={tr("প্রতিটি দলিলের ডিজিটাল ছাপ তার কিউআর কোডে আছে। ছাপের প্রথম অংশ এখানে দেখানো হলো।", "Every deed's digital fingerprint is inside its QR code. The start of each fingerprint is shown here.")}
       />
-      <Card className="py-0">
-        <Table className="min-w-[680px]">
-          <TableHeader className={GREEN_HEAD}>
-            <TableRow className={GREEN_HEAD}>
-              <TableHead className="pl-5">{tr("দলিল নং", "Deed no.")}</TableHead>
-              <TableHead>{tr("তারিখ", "Date")}</TableHead>
-              <TableHead>{tr("দাগ", "Dag")}</TableHead>
-              <TableHead>{tr("দাতা → গ্রহীতা", "Seller → Buyer")}</TableHead>
-              <TableHead className="text-right">{tr("শতাংশ", "Decimals")}</TableHead>
-              <TableHead>{tr("ডিজিটাল ছাপ", "Fingerprint")}</TableHead>
-              <TableHead className="w-10 pr-5">
-                <span className="sr-only">{tr("খুলুন", "Open")}</span>
-              </TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {deeds.map((d) => (
-              <TableRow key={d.no} className="cursor-pointer" onClick={() => go("deed-" + d.no)}>
-                <TableCell className="pl-5">
-                  <button onClick={() => go("deed-" + d.no)} className="num cursor-pointer font-semibold text-primary underline-offset-4 hover:underline">
-                    {tr.num(d.no)}
-                  </button>
-                </TableCell>
-                <TableCell>{tr.date(d.date)}</TableCell>
-                <TableCell className="num">{tr.num(state.plots[d.plot].dag)}</TableCell>
-                <TableCell className="whitespace-normal">
-                  {tr.pick(state.people[d.seller])} → {tr.pick(state.people[d.buyer])}
-                </TableCell>
-                <TableCell className="num text-right">{tr.num(F.display(d.decimals))}</TableCell>
-                <TableCell className="mono text-sm text-muted-foreground">{d.fingerprint.slice(0, 12)}…</TableCell>
-                <TableCell className="pr-5 text-muted-foreground">
-                  <ChevronRightIcon className="size-4" aria-hidden="true" />
-                </TableCell>
+      <AreaScope all={allAreas} setAll={setAllAreas} shown={deeds.length} total={state.deeds.length} noun={{ bn: "দলিল", en: "deeds" }} />
+      {empty ? (
+        <Empty className="rounded-lg border border-dashed bg-card">
+          <EmptyHeader>
+            <EmptyMedia variant="icon">
+              <FileSearchIcon />
+            </EmptyMedia>
+            <EmptyTitle>{tr("এই এলাকায় এখনো কোনো দলিল নেই", "No deeds in this area yet")}</EmptyTitle>
+            <EmptyDescription>{tr("অন্য এলাকার দলিল দেখতে পারবেন, অথবা ওপরের এলাকা বদলে নিন।", "You can look at the other areas, or change the area at the top.")}</EmptyDescription>
+          </EmptyHeader>
+          <EmptyContent>
+            <Button variant="outline" onClick={() => setAllAreas(true)}>
+              {tr("সব এলাকার দলিল", "Deeds from all areas")}
+            </Button>
+          </EmptyContent>
+        </Empty>
+      ) : (
+        <Card className="py-0">
+          <Table className="min-w-[680px]">
+            <TableHeader className={GREEN_HEAD}>
+              <TableRow className={GREEN_HEAD}>
+                <TableHead className="pl-5">{tr("দলিল নং", "Deed no.")}</TableHead>
+                <TableHead>{tr("তারিখ", "Date")}</TableHead>
+                <TableHead>{tr("দাগ", "Dag")}</TableHead>
+                <TableHead>{tr("দাতা → গ্রহীতা", "Seller → Buyer")}</TableHead>
+                <TableHead className="text-right">{tr("শতাংশ", "Decimals")}</TableHead>
+                <TableHead>{tr("ডিজিটাল ছাপ", "Fingerprint")}</TableHead>
+                <TableHead className="w-10 pr-5">
+                  <span className="sr-only">{tr("খুলুন", "Open")}</span>
+                </TableHead>
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </Card>
+            </TableHeader>
+            <TableBody>
+              {deeds.map((d) => (
+                <TableRow key={d.no} className="cursor-pointer" onClick={() => go("deed-" + d.no)}>
+                  <TableCell className="pl-5">
+                    <button onClick={() => go("deed-" + d.no)} className="num cursor-pointer font-semibold text-primary underline-offset-4 hover:underline">
+                      {tr.num(d.no)}
+                    </button>
+                  </TableCell>
+                  <TableCell>{tr.date(d.date)}</TableCell>
+                  <TableCell className="num">
+                    {tr.num(state.plots[d.plot].dag)}
+                    {allAreas ? <span className="font-normal text-muted-foreground"> · {tr.pick(state.plots[d.plot].mouza)}</span> : null}
+                  </TableCell>
+                  <TableCell className="whitespace-normal">
+                    {tr.pick(state.people[d.seller])} → {tr.pick(state.people[d.buyer])}
+                  </TableCell>
+                  <TableCell className="num text-right">{tr.num(F.display(d.decimals))}</TableCell>
+                  <TableCell className="mono text-sm text-muted-foreground">{d.fingerprint.slice(0, 12)}…</TableCell>
+                  <TableCell className="pr-5 text-muted-foreground">
+                    <ChevronRightIcon className="size-4" aria-hidden="true" />
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </Card>
+      )}
     </div>
   );
 }

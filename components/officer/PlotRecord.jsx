@@ -6,7 +6,6 @@ import * as F from "@/lib/fraction";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardAction, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { ShareBar, OWNER_SHADES } from "../brand";
 
 
@@ -84,26 +83,24 @@ export default function PlotRecord({ state, plotId, selling, sellerId, compact =
         ))}
         <ShareBar owners={owners} total={plot.total} people={state.people} selling={selling} sellerId={sellerId} />
         {!compact && (
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>{tr("মালিক", "Owner")}</TableHead>
-                <TableHead className="text-right">{tr("অবশিষ্ট অংশ (শতাংশ)", "Remaining (decimals)")}</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
+          <div className="flex flex-col">
+            <div className="flex items-baseline justify-between gap-3 border-b pb-1.5 text-sm text-muted-foreground">
+              <span>{tr("মালিক", "Owner")}</span>
+              <span className="text-right">{tr("অবশিষ্ট অংশ (শতাংশ)", "Remaining (decimals)")}</span>
+            </div>
+            <ul>
               {owners.map((o, i) => (
-                <TableRow key={o.person} className={cn(o.person === sellerId && "bg-accent/50 font-semibold")}>
-                  <TableCell className="whitespace-normal">
-                    <span className="mr-2 inline-block size-2.5 rounded-sm align-middle" style={{ background: OWNER_SHADES[i % OWNER_SHADES.length] }} aria-hidden="true" />
+                <li key={o.person} className={cn("flex items-baseline justify-between gap-3 border-b py-1.5 last:border-b-0", o.person === sellerId && "bg-accent/50 font-semibold")}>
+                  <span className="min-w-0 break-words">
+                    <span className="mr-2 inline-block size-2.5 shrink-0 rounded-sm align-middle" style={{ background: OWNER_SHADES[i % OWNER_SHADES.length] }} aria-hidden="true" />
                     {tr.pick(state.people[o.person])}
                     {o.person === sellerId ? <span className="ml-2 text-sm font-normal text-muted-foreground">({tr("বিক্রেতা", "seller")})</span> : null}
-                  </TableCell>
-                  <TableCell className="num text-right">{tr.num(F.display(o.share))}</TableCell>
-                </TableRow>
+                  </span>
+                  <span className="num shrink-0 text-right">{tr.num(F.display(o.share))}</span>
+                </li>
               ))}
-            </TableBody>
-          </Table>
+            </ul>
+          </div>
         )}
       </CardContent>
       <CardFooter className={cn("mt-auto gap-2 text-sm", exact ? "text-success" : "text-destructive")}>

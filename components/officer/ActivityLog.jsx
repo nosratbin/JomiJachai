@@ -1,13 +1,16 @@
 "use client";
+import { useState } from "react";
 import { ShieldCheckIcon, ShieldAlertIcon } from "lucide-react";
 import { useT } from "@/lib/i18n";
 import { useRegister } from "@/lib/api";
+import { usePrefs } from "@/lib/store";
 import { verifyLogChain, officerName } from "@/lib/register";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { PageHeader, GREEN_HEAD } from "../brand";
+import { AreaScope, inArea } from "./AreaScope";
 
 const RESULT = {
   approved: ["success", "অনুমোদিত", "Approved"],
@@ -23,12 +26,20 @@ const RESULT = {
 export default function ActivityLog() {
   const tr = useT();
   const state = useRegister();
+  const { area } = usePrefs();
+  const [allAreas, setAllAreas] = useState(false);
   const chain = verifyLogChain(state.log);
   const who = (u) => {
     const o = officerName(u);
     if (o) return tr.pick(o).split(",")[0];
     return { citizen: tr("নাগরিক অ্যাপ", "Citizen App"), system: tr("সিস্টেম", "System"), sync: tr("সিঙ্ক", "Sync") }[u] || u;
   };
+  // a line belongs to a plot directly, or through the deed it is about;
+  // lines with neither (register started, sync) are register-wide and stay in view.
+  const deedPlot = Object.fromEntries(state.deeds.map((d) => [d.no, d.plot]));
+  const rows = [...state.log].reverse();
+  const registerWide = (e) => !e.plot && !e.deed; // started, sync: not tied to any one area
+  const shown = allAreas ? rows : rows.filter((e) => registerWide(e) || inArea(state, e.plot || deedPlot[e.deed], area));
   return (
     <div className="flex flex-col gap-6">
       <PageHeader
@@ -38,6 +49,7 @@ export default function ActivityLog() {
           "Every check, approval and blocked attempt, with who did it and when. New lines can only be added; old lines cannot be edited or deleted."
         )}
       />
+      <AreaScope all={allAreas} setAll={setAllAreas} shown={shown.length} total={rows.length} noun={{ bn: "লাইন", en: "lines" }} />
       <Alert variant={chain.ok ? "success" : "destructive"}>
         {chain.ok ? <ShieldCheckIcon /> : <ShieldAlertIcon />}
         <AlertTitle>{chain.ok ? tr("কার্যলিপির শিকল অক্ষত", "Log chain intact") : tr(`কার্যলিপি বদলানো হয়েছে (লাইন ${tr.num(chain.brokenAt)})`, `Log was changed (line ${chain.brokenAt})`)}</AlertTitle>
@@ -58,7 +70,7 @@ export default function ActivityLog() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {[...state.log].reverse().map((e) => {
+            {shown.map((e) => {
               const [variant, bn, en] = RESULT[e.result] || RESULT.info;
               return (
                 <TableRow key={e.seq} className="align-top">
